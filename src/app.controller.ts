@@ -10,4 +10,10 @@ export class AppController {
     console.log('getDBInfo');
     return this.appService.DBInfo() + '<br>Host : ' + process.env.MYSQL_HOST + '<br>Port : ' + process.env.MYSQL_PORT;
   }
+
+  @Get('hello')
+  getHello(): string {
+    console.log('Hello World!');
+    return 'Hello World!';
+  }
 }

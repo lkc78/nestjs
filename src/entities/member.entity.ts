@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from 'typeorm';
 
-@Entity('Member')
-export class MemberEntity {
+@Entity()
+export class Member {
   @PrimaryColumn({ length: 30 })
   userid: string;
 

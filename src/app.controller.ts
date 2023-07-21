@@ -1,19 +1,22 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { ApiTags } from '@nestjs/swagger';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @Get()
-  getDBInfo(): string {
-    console.log('getDBInfo');
-    return this.appService.DBInfo() + '<br>Host : ' + process.env.MYSQL_HOST + '<br>Port : ' + process.env.MYSQL_PORT;
+  getRoot(): string {
+    return (
+      '<div style="position:absolute; top:50%; left:50%; margin-left:-65px; margin-top:-10px; font-size:18px;">' +
+      process.env.Service_Name +
+      '</div>'
+    );
   }
 
-  @Get('hello')
-  getHello(): string {
-    console.log('Hello World!');
-    return 'Hello World!';
+  @Get('getDBInfo')
+  getDBInfo() {
+    return this.appService.DBInfo();
   }
 }

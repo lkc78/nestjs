@@ -18,7 +18,7 @@ async function bootstrap() {
   // Swagger 설정
   const config = new DocumentBuilder()
     .setTitle('API Docs')
-    .setDescription('This API service provides Our Service.')
+    .setDescription('This API service provides ' + process.env.Service_Name)
     .setVersion('1.0.0')
     .build();
 

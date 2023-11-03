@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, HttpStatus, HttpException, Logger } from '@nestjs/common';
+import { Controller, Post, Body, HttpStatus, HttpException, Logger } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { CreateAccountDto } from './dto/create-account.dto';
 import { ApiTags, ApiOperation, ApiCreatedResponse } from '@nestjs/swagger';

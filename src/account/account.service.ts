@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 // Entities
-import { Member_Old } from '../entities/member.entity';
+import { Member } from '../entities/member.entity';
 
 // Dto
 import { CreateAccountDto } from './dto/create-account.dto';
@@ -12,8 +12,8 @@ import { LoginAccountDto } from './dto/login-account.dto';
 @Injectable()
 export class AccountService {
   constructor(
-    @InjectRepository(Member_Old)
-    private memberRepository: Repository<Member_Old>,
+    @InjectRepository(Member)
+    private memberRepository: Repository<Member>,
   ) {}
 
   async join(createAccountDto: CreateAccountDto): Promise<any> {
@@ -25,11 +25,11 @@ export class AccountService {
     if (exist_email) throw new HttpException('The email is already exists. [' + createAccountDto.email + ']', HttpStatus.BAD_REQUEST);
 
     // DB 저장
-    const member = new Member_Old();
+    const member = new Member();
     member.userid = createAccountDto.userid;
     member.userpass = createAccountDto.userpass;
     member.email = createAccountDto.email;
-    member.nickname = createAccountDto.nickname;
+    member.username = createAccountDto.nickname;
     const result = await this.memberRepository.save(member);
 
     return result;

@@ -2,10 +2,16 @@ import { Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } fro
 import { IsEmail } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { BadRequestException } from '@nestjs/common';
+import { ApiProperty } from '@nestjs/swagger';
 
 @Entity()
 export class Member {
   @Transform((params) => params.value.trim())
+  @ApiProperty({
+    example: 'Inkweon Kim',
+    description: '사용자 아이디',
+    required: true,
+  })
   @PrimaryColumn({ length: 30 })
   userid: string;
 
@@ -15,21 +21,28 @@ export class Member {
     }
     return value.trim();
   })
-  @Column({ length: 50 })
+  @ApiProperty({
+    example: 'dev1234567890',
+    description: '사용자 비밀번호',
+    required: true,
+  })
+  @Column({ length: 100 })
   userpass: string;
 
   @Column({ length: 30 })
   username: string;
 
   @IsEmail()
+  @ApiProperty({
+    example: 'abc123@gmail.com',
+    description: '사용자 이메일',
+    required: true,
+  })
   @Column({ length: 50 })
   email: string;
 
-  @Column({ type: 'bigint' })
-  groupcode: number;
-
   @Column({ length: 30 })
-  groupname: string;
+  groupcode: string;
 
   @Column({ length: 1 })
   groupmember: string;

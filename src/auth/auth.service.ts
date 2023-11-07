@@ -1,22 +1,48 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+// src/auth/auth.service.ts
+import { ForbiddenException, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Member } from '../entities/member.entity';
+import { Repository } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { AccountService } from '../account/account.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private accountService: AccountService,
+    @InjectRepository(Member)
+    private readonly memberRepository: Repository<Member>,
     private jwtService: JwtService,
   ) {}
 
-  async signIn(username: string, pass: string) {
-    const user = { username: '1', password: '1', userId: '1' }; // await this.accountService.login(username);
-    if (user?.password !== pass) {
-      throw new UnauthorizedException();
+  async validateServiceUser(userid: string, password: string): Promise<any> {
+    const user = await this.memberRepository.findOne({
+      where: {
+        userid: userid,
+      },
+    });
+
+    if (!user) {
+      throw new ForbiddenException('등록되지 않은 사용자입니다.');
     }
-    const payload = { username: user.username, sub: user.userId };
+
+    // 전달받은 비밀번호와 DB에 저장된 비밀번호가 일치하는지 확인
+    if (!(await bcrypt.compare(password, user.userpass))) {
+      throw new ForbiddenException('비밀번호가 일치하지 않습니다.');
+    }
+
+    return user;
+  }
+
+  loginServiceUser(member: Member) {
+    const payload = {
+      userid: member.userid,
+      username: member.username,
+      email: member.email,
+      created_at: member.created_at,
+    };
     return {
-      access_token: await this.jwtService.signAsync(payload),
+      // 사용자 정보를 JWT 안에 전달
+      token: this.jwtService.sign(payload),
     };
   }
 }

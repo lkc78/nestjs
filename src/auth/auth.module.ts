@@ -1,29 +1,31 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Member } from '../entities/member.entity';
+import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { AccountModule } from '../account/account.module';
-import { AuthController } from './auth.controller';
-import { AuthGuard } from './auth.guard';
+import { ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
-import { jwtConstants } from './constants';
+import { LocalServiceStrategy } from './strategies/local-service.strategy';
+import { JwtServiceStrategy } from './strategies/jwt-service.strategy';
 
 @Module({
   imports: [
-    AccountModule,
-    JwtModule.register({
-      global: true,
-      secret: jwtConstants.secret,
-      signOptions: { expiresIn: '60s' },
+    TypeOrmModule.forFeature([Member]),
+    // 인증을 구현할 때 session을 사용하지 않도록 설정
+    PassportModule.register({ session: false }),
+    JwtModule.registerAsync({
+      useFactory: (configService: ConfigService) => {
+        return {
+          // JWT 토큰을 생성하고 검증할 때 사용되는 비밀키
+          secret: configService.get('SECRET_KEY'),
+          // JWT가 만료되는 시간을 설정, 1년
+          signOptions: { expiresIn: '1d' },
+        };
+      },
+      inject: [ConfigService],
     }),
   ],
-  providers: [
-    AuthService,
-    {
-      provide: APP_GUARD,
-      useClass: AuthGuard,
-    },
-  ],
-  controllers: [AuthController],
+  providers: [AuthService, LocalServiceStrategy, JwtServiceStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

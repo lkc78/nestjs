@@ -17,8 +17,13 @@ export class CreateAccountDto {
   @ApiProperty({ description: '사용자 E-Mail' })
   email: string;
 
-  @IsNotEmpty({ message: '별명은 필수 항목입니다.' })
-  @IsString({ message: '별명은 문자열로 작성하셔야 합니다.' })
-  @ApiProperty({ description: '사용자 별명' })
-  nickname: string;
+  @IsNotEmpty({ message: '사용자명은 필수 항목입니다.' })
+  @IsString({ message: '사용자명은 문자열로 작성하셔야 합니다.' })
+  @ApiProperty({ description: '사용자 이름' })
+  username: string;
+
+  @IsNotEmpty({ message: '그룹명은 필수 항목입니다.' })
+  @IsString({ message: '그룹명은 문자열로 작성하셔야 합니다.' })
+  @ApiProperty({ description: '그룹 이름' })
+  groupname: string;
 }

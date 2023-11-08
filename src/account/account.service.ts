@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, HttpStatus, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -67,13 +67,28 @@ export class AccountService {
   }
 
   async login(loginAccountDto: LoginAccountDto): Promise<any> {
-    const exist_userid = await this.memberRepository.exist({
-      where: { userid: loginAccountDto.userid, userpass: loginAccountDto.userpass },
+    const exist_user = await this.memberRepository.exist({
+      where: { userid: loginAccountDto.userid },
     });
-    if (!exist_userid) throw new HttpException('The login info is not invalid. [' + loginAccountDto.userid + ']', HttpStatus.BAD_REQUEST);
 
-    const member = this.memberRepository.find({ where: { userid: loginAccountDto.userid, userpass: loginAccountDto.userpass } });
-    return member;
+    if (!exist_user) {
+      throw new ForbiddenException('등록되지 않은 사용자입니다.');
+    }
+
+    const member = await this.memberRepository.find({ where: { userid: loginAccountDto.userid } });
+
+    if (member.length == 1) {
+      // 전달받은 비밀번호와 DB에 저장된 비밀번호가 일치하는지 확인
+      if (!(await bcrypt.compare(loginAccountDto.userpass, member[0].userpass))) {
+        console.log(loginAccountDto.userpass);
+        console.log(member[0].userpass);
+        throw new ForbiddenException('비밀번호가 일치하지 않습니다.');
+      }
+      member[0].userpass = '';
+      return member;
+    } else {
+      throw new ForbiddenException('서버 오류입니다. 동일아이디가 2개 이상 존재합니다.');
+    }
   }
 
   async findOne(input_id: string, input_pass: string): Promise<any> {

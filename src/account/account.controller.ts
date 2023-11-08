@@ -38,21 +38,29 @@ export class AccountController {
     }
   }
 
-  @Post('login')
+  @Post('login_jwt')
   @UseGuards(LocalServiceAuthGuard)
   @ApiOperation({ summary: '회원 로그인', description: '회원 로그인을 할 수 있다.' })
   @ApiCreatedResponse({ description: '회원로그인정보', type: ResponseAccountDto })
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async login(@Req() req, @Body() loginAccountDto: LoginAccountDto) {
+  async login_jwt(@Req() req, @Body() loginAccountDto: LoginAccountDto) {
     try {
       const token = this.authService.loginServiceUser(req.user);
       return token;
+    } catch (ex) {
+      this.logger.error(ex.message);
+      console.log(ex.message);
+      throw new HttpException(ex.message, HttpStatus.BAD_REQUEST);
+    }
+  }
 
-      // // 비밀번호 암호화
-      // const hashPassword = await this.accountService.hashPassword(loginAccountDto.userpass);
-      // loginAccountDto.userpass = hashPassword;
-
-      // return await this.accountService.login(loginAccountDto);
+  @Post('login')
+  @ApiOperation({ summary: '회원 로그인', description: '회원 로그인을 할 수 있다.' })
+  @ApiCreatedResponse({ description: '회원로그인정보', type: ResponseAccountDto })
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async login(@Body() loginAccountDto: LoginAccountDto) {
+    try {
+      return await this.accountService.login(loginAccountDto);
     } catch (ex) {
       this.logger.error(ex.message);
       console.log(ex.message);
@@ -62,7 +70,7 @@ export class AccountController {
 
   @ApiOperation({ summary: '내 정보 조회 API', description: '이름, 메일 등을 조회한다.' })
   @UseGuards(JwtServiceAuthGuard)
-  @Get('profile')
+  @Get('profile_jwt')
   async getProfile() {
     return {
       result: true,
